@@ -1,5 +1,5 @@
 const SearchBox = () => {
-  return <div>this is search</div>;
+  return <div></div>;
 };
 
 export default SearchBox;
