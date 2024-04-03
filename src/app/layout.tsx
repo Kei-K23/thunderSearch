@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import HeroSection from "@/components/hero-section";
+import HeroSection from "@/components/intro-section";
 import SearchBox from "@/components/search-box";
 
 const inter = Inter({ subsets: ["latin"] });
