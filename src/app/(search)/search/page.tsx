@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import React from "react";
 import NotFoundProduct from "../_components/not-found-product";
+import ProductList from "../_components/product-list";
 
 export const metadata: Metadata = {
   title: `Search`,
@@ -68,9 +69,12 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
   }
 
   return (
-    <div>
+    <div className="px-4">
       <HeroSection />
-      {products.length <= 0 && <NotFoundProduct query={query} />}
+      <div className="max-w-[600px] mx-auto">
+        {products.length <= 0 && <NotFoundProduct query={query} />}
+        {products.length > 0 && <ProductList products={products} />}
+      </div>
     </div>
   );
 };
