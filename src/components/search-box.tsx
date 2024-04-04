@@ -4,15 +4,14 @@ import { Loader2, Search } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { KeyboardEvent, useRef, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const SearchBox = () => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, startTransition] = useTransition();
   const router = useRouter();
-  const searchParam = useSearchParams();
-  const text = searchParam.get("query");
-  const [query, setQuery] = useState(text ?? "");
+
+  const [query, setQuery] = useState("");
   const onSearch = () => {
     startTransition(() => {
       router.push(`/search?query=${query}`);
