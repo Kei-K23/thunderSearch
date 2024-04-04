@@ -4,10 +4,11 @@ import { Index } from '@upstash/vector'
 import * as dotenv from 'dotenv'
 import { drizzle } from 'drizzle-orm/neon-http'
 import { productsTable } from './schema'
+import { embedding } from '@/lib/embedding'
 
 dotenv.config()
 
-// const index = new Index()
+const index = new Index()
 
 async function main() {
     const sql = neon(process.env.DB_CONNECTION!)
@@ -137,17 +138,17 @@ async function main() {
     products.forEach(async (product) => {
         await db.insert(productsTable).values(product).onConflictDoNothing()
 
-        //     await index.upsert({
-        //         id: product.id!,
-        //         vector: await vectorize(`${product.name}: ${product.description}`),
-        //         metadata: {
-        //             id: product.id,
-        //             name: product.name,
-        //             description: product.description,
-        //             price: product.price,
-        //             imageId: product.imageId,
-        //         },
-        //     })
+        await index.upsert({
+            id: product.id!,
+            vector: await embedding(`${product.name}: ${product.description}`),
+            metadata: {
+                id: product.id,
+                name: product.name,
+                description: product.description,
+                price: product.price,
+                imageId: product.imageId,
+            },
+        })
     })
 }
 

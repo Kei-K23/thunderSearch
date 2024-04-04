@@ -1,10 +1,13 @@
 import HeroSection from "@/components/hero-section";
 import { db } from "@/db";
-import { productsTable } from "@/db/schema";
+import { Product, productsTable } from "@/db/schema";
+import { embedding } from "@/lib/embedding";
+import { Index } from "@upstash/vector";
 import { sql } from "drizzle-orm";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import React from "react";
+import NotFoundProduct from "../_components/not-found-product";
 
 export const metadata: Metadata = {
   title: `Search`,
@@ -15,6 +18,8 @@ type SearchPageProps = {
     [key: string]: string | string[] | undefined;
   };
 };
+
+const index = new Index<Product>();
 
 const SearchPage = async ({ searchParams }: SearchPageProps) => {
   const query = searchParams.query;
@@ -36,10 +41,36 @@ const SearchPage = async ({ searchParams }: SearchPageProps) => {
     )
     .limit(3);
 
+  // perform semantic query
+  if (products.length < 3) {
+    const vector = await embedding(query);
+
+    if (vector.length <= 0) {
+      return;
+    }
+    const res = await index.query({
+      topK: 5,
+      vector,
+      includeMetadata: true,
+    });
+
+    const vectorProducts = res
+      .filter((p) => {
+        if (products.some((product) => product.id === p.id) || p.score < 0.9) {
+          return false;
+        } else {
+          return true;
+        }
+      })
+      .map(({ metadata }) => metadata!);
+
+    products.push(...vectorProducts);
+  }
+
   return (
     <div>
       <HeroSection />
-      <pre>{JSON.stringify(products)}</pre>
+      {products.length <= 0 && <NotFoundProduct query={query} />}
     </div>
   );
 };
